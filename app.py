@@ -3,8 +3,7 @@ from PyPDF2 import PdfReader
 import openai
 
 # Add your API key here
-openai.api_key = "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"
-
+client = OpenAI(api_key=st.secrets["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"])
 
 def read_pdf(file):
     pdf = PdfReader(file)
@@ -38,6 +37,7 @@ if uploaded_file:
         answer = ask_ai(question, pdf_text)
 
         st.write(answer)
+
 
 
 

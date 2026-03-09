@@ -1,9 +1,11 @@
 import streamlit as st
-from PyPDF2 import PdfReader
-import openai
 
-# Add your API key here
-client = OpenAI(api_key=st.secrets["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"])
+from PyPDF2 import PdfReader
+from openai import OpenAI
+
+
+# Read API key from Streamlit secrets
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def read_pdf(file):
     pdf = PdfReader(file)
@@ -15,14 +17,16 @@ def read_pdf(file):
     return text
 
 def ask_ai(question, pdf_text):
-    response = openai.chat.completions.create(   # <-- UPDATED method
-        model="gpt-3.5-turbo",
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "system", "content": "You are a helpful assistant that answers questions from a PDF."},
             {"role": "user", "content": f"{question}\nContext: {pdf_text}"}
         ]
     )
+    
     return response.choices[0].message.content
+
 st.title("AI PDF Chatbot")
 
 uploaded_file = st.file_uploader("Upload PDF", type="pdf")
@@ -35,9 +39,4 @@ if uploaded_file:
 
     if st.button("Get Answer"):
         answer = ask_ai(question, pdf_text)
-
         st.write(answer)
-
-
-
-

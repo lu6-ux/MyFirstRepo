@@ -14,16 +14,15 @@ def read_pdf(file):
             text += page_text
     return text
 
-def ask_ai(question, context):
-    response = openai.ChatCompletion.create(
+def ask_ai(question, pdf_text):
+    response = openai.chat.completions.create(   # <-- UPDATED method
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are a helpful AI assistant."},
-            {"role": "user", "content": context + "\nQuestion:" + question}
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": f"{question}\nContext: {pdf_text}"}
         ]
     )
     return response.choices[0].message.content
-
 st.title("AI PDF Chatbot")
 
 uploaded_file = st.file_uploader("Upload PDF", type="pdf")
@@ -36,4 +35,5 @@ if uploaded_file:
 
     if st.button("Get Answer"):
         answer = ask_ai(question, pdf_text)
+
         st.write(answer)

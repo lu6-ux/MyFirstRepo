@@ -4,7 +4,6 @@ import openai
 
 # Add your API key here
 openai.api_key = "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"
-kA"
 
 def read_pdf(file):
     pdf = PdfReader(file)
@@ -38,4 +37,5 @@ if uploaded_file:
         answer = ask_ai(question, pdf_text)
 
         st.write(answer)
+
 

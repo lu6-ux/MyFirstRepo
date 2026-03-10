@@ -15,7 +15,7 @@ st.markdown("""
 .stApp {
     background-color: #f5f7fa;
 }
-h1 {
+h1, h2, h3, h4, h5, h6 {
     color: #2c3e50;
 }
 </style>
@@ -23,7 +23,6 @@ h1 {
 
 # OpenAI client
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
 
 # Function to read PDF
 def read_pdf(file):
@@ -34,7 +33,6 @@ def read_pdf(file):
         if page_text:
             text += page_text
     return text
-
 
 # Function to ask AI
 def ask_ai(question, pdf_text):
@@ -47,35 +45,34 @@ def ask_ai(question, pdf_text):
     )
     return response.choices[0].message.content
 
-
 # Title
 st.title("🤖 AI PDF Chatbot")
 st.write("Upload a PDF and ask questions about the document.")
 
 st.divider()
 
-# Sidebar for upload
-st.sidebar.header("Upload Document")
-
-uploaded_file = st.sidebar.file_uploader("Upload your PDF", type="pdf")
+# **Mobile-friendly file uploader on main page**
+uploaded_file = st.file_uploader(
+    "📂 Upload your PDF",
+    type="pdf",
+    accept_multiple_files=False
+)
 
 if uploaded_file:
-
     with st.spinner("Reading PDF..."):
         pdf_text = read_pdf(uploaded_file)
-
     st.success("✅ PDF Loaded Successfully!")
 
     question = st.text_input("💬 Ask a question from the PDF")
 
     if st.button("🔍 Get Answer"):
-
-        with st.spinner("AI is thinking..."):
-            answer = ask_ai(question, pdf_text)
-
-        st.subheader("📄 Answer")
-        st.write(answer)
+        if question.strip() == "":
+            st.warning("Please enter a question before submitting.")
+        else:
+            with st.spinner("AI is thinking..."):
+                answer = ask_ai(question, pdf_text)
+            st.subheader("📄 Answer")
+            st.write(answer)
 
 st.divider()
-
 st.caption("Built by Lakshana | AI PDF Chatbot Project")

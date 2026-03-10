@@ -1,12 +1,31 @@
 import streamlit as st
-
 from PyPDF2 import PdfReader
 from openai import OpenAI
 
+# Page configuration
+st.set_page_config(
+    page_title="AI PDF Chatbot",
+    page_icon="🤖",
+    layout="wide"
+)
 
-# Read API key from Streamlit secrets
+# Custom UI style
+st.markdown("""
+<style>
+.stApp {
+    background-color: #f5f7fa;
+}
+h1 {
+    color: #2c3e50;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# OpenAI client
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+
+# Function to read PDF
 def read_pdf(file):
     pdf = PdfReader(file)
     text = ""
@@ -16,27 +35,47 @@ def read_pdf(file):
             text += page_text
     return text
 
+
+# Function to ask AI
 def ask_ai(question, pdf_text):
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant that answers questions from a PDF."},
-            {"role": "user", "content": f"{question}\nContext: {pdf_text}"}
+            {"role": "system", "content": "Answer questions using the provided PDF context."},
+            {"role": "user", "content": f"Context: {pdf_text}\n\nQuestion: {question}"}
         ]
     )
-    
     return response.choices[0].message.content
 
-st.title("AI PDF Chatbot")
 
-uploaded_file = st.file_uploader("Upload PDF", type="pdf")
+# Title
+st.title("🤖 AI PDF Chatbot")
+st.write("Upload a PDF and ask questions about the document.")
+
+st.divider()
+
+# Sidebar for upload
+st.sidebar.header("Upload Document")
+
+uploaded_file = st.sidebar.file_uploader("Upload your PDF", type="pdf")
 
 if uploaded_file:
-    pdf_text = read_pdf(uploaded_file)
-    st.success("PDF Loaded!")
 
-    question = st.text_input("Ask a question about the PDF")
+    with st.spinner("Reading PDF..."):
+        pdf_text = read_pdf(uploaded_file)
 
-    if st.button("Get Answer"):
-        answer = ask_ai(question, pdf_text)
+    st.success("✅ PDF Loaded Successfully!")
+
+    question = st.text_input("💬 Ask a question from the PDF")
+
+    if st.button("🔍 Get Answer"):
+
+        with st.spinner("AI is thinking..."):
+            answer = ask_ai(question, pdf_text)
+
+        st.subheader("📄 Answer")
         st.write(answer)
+
+st.divider()
+
+st.caption("Built by Lakshana | AI PDF Chatbot Project")
